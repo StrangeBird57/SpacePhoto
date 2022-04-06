@@ -13,63 +13,62 @@ def get_extension(url):
     return extension
 
 
-def download_image(path, url):
-    response = requests.get(url)
+def download_image(path, url, params=None):
+    response = requests.get(url, params=params)
     response.raise_for_status()
     with open(path, 'wb') as file:
         file.write(response.content)
 
 
-def fetch_spacex_last_launch(url):
+def fetch_spacex_last_launch():
+    url = "https://api.spacexdata.com/v3/launches/87"
     response = requests.get(url)
     response.raise_for_status()
     image_links = response.json()["links"]["flickr_images"]
-    for i in range(len(image_links)):
-        download_image("Images/spacex{}.jpg".format(i + 1), image_links[i])
+    for image_index, image_link in enumerate(image_links, start=1):
+        download_image("Images/spacex{}.jpg".format(image_index), image_link)
 
 
-def fetch_nasa_apod(url, token):
+def fetch_nasa_apod(token):
+    url = "https://api.nasa.gov/planetary/apod"
     params = {
       "api_key": token,
       "count": 30
     }
     response = requests.get(url, params=params)
     response.raise_for_status()
-    for i in range(len(response.json())):
-        extension = get_extension(response.json()[i]["url"])
-        download_image("Images/nasa_apod_{}{}".format(i + 1, extension),
-                       response.json()[i]["url"])
+    for image_index, image in enumerate(response.json(), start=1):
+        extension = get_extension(image["url"])
+        download_image("Images/nasa_apod_{}{}".format(image_index, extension),
+                       image["url"])
 
 
-def fetch_nasa_epic(url, token):
+def fetch_nasa_epic(token):
+    url = "https://api.nasa.gov/EPIC/api/natural/images"
     url_template = "https://api.nasa.gov/EPIC/archive/natural/{}/{}/{}/png/{}.png"
     params = {
       "api_key": token
     }
     response = requests.get(url, params=params)
     response.raise_for_status()
-    for i in range(10):
-        date = datetime.datetime.strptime(response.json()[i]["date"],
+    for image_index in range(10):
+        date = datetime.datetime.strptime(response.json()[image_index]["date"],
                                           "%Y-%m-%d %H:%M:%S")
         image_url = url_template.format(date.strftime("%Y"),
                                         date.strftime("%m"),
                                         date.strftime("%d"),
-                                        response.json()[i]["image"])
-        image_response = requests.get(image_url, params)
-        download_image("Images/nasa_epic_{}.png".format(i + 1),
-                       image_response.url)
+                                        response.json()[image_index]["image"])
+        download_image("Images/nasa_epic_{}.png".format(image_index + 1),
+                       image_url, params)
 
 
 def main():
     load_dotenv()
     Path("Images").mkdir(parents=True, exist_ok=True)
     nasa_token = os.getenv("NASA_TOKEN")
-    spacex_url = "https://api.spacexdata.com/v3/launches/87"
-    apod_url = "https://api.nasa.gov/planetary/apod"
-    epic_url = "https://api.nasa.gov/EPIC/api/natural/images"
-    fetch_spacex_last_launch(spacex_url)
-    fetch_nasa_apod(apod_url, nasa_token)
-    fetch_nasa_epic(epic_url, nasa_token)
+    fetch_spacex_last_launch()
+    fetch_nasa_apod(nasa_token)
+    fetch_nasa_epic(nasa_token)
 
 
 if __name__ == '__main__':
