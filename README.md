@@ -1,7 +1,7 @@
 # SpacePhoto
 
 
-### DownloadPhotos.py
+### downloadphotos.py
 
 Скачивает и сохраняет в папку Images фотографии с одного из запусков SpaceX, а также фотографии с сайта NASA.
 
@@ -11,7 +11,7 @@ python3 DownloadPhotos.py
 ```
 
 
-### TelegramBot.py
+### telegrambot.py
 
 Публикует в телеграмм канале случайную фотографию из скачанных с заданным временным интервалом
 
