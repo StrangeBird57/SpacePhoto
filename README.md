@@ -7,7 +7,7 @@
 
 Запуск скрипта:
 ```
-python3 DownloadPhotos.py
+python3 downloadphotos.py
 ```
 
 
@@ -17,7 +17,7 @@ python3 DownloadPhotos.py
 
 Запуск скрипта:
 ```
-python3 TelegramBot.py
+python3 telegrambot.py
 ```
 
 ## Как установить
